@@ -1,4 +1,4 @@
-import { Button, Input, Progress, message } from 'antd';
+import { Button, Empty, Input, Progress, message } from 'antd';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
 	getDownloadURL,
@@ -7,6 +7,7 @@ import {
 	uploadBytesResumable,
 } from 'firebase/storage';
 import React, { useState } from 'react';
+import { uid } from 'uid';
 import { db, storage } from '../config/firebaseConfig';
 
 export default function Upload() {
@@ -14,9 +15,17 @@ export default function Upload() {
 	const [url, setUrl] = useState(null);
 	const [progress, setProgress] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
+	const date = new Date();
+	const dateNow = `${date.getDay()}: ${date.getHours()}: ${date.getMinutes()}`;
+	const [state, setState] = useState({
+		title: '',
+		description: '',
+		date: dateNow,
+	});
 
 	const saveData = async () => {
 		const ids = Date.now();
+		const uiid = uid();
 		const dbRef = doc(db, 'video', ids.toString());
 		try {
 			if (url) {
@@ -28,7 +37,8 @@ export default function Upload() {
 				} else {
 					await setDoc(dbRef, {
 						url: url,
-						id: ids,
+						id: uiid,
+						...state,
 					});
 					message.success("qo'shildi");
 				}
@@ -54,8 +64,6 @@ export default function Upload() {
 				uploadTask.on(
 					'state_changed',
 					snapshot => {
-						// Observe state change events such as progress, pause, and resume
-						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
 						const progress =
 							(snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 						setProgress(Math.floor(Math.ceil(progress)));
@@ -69,11 +77,9 @@ export default function Upload() {
 						}
 					},
 					error => {
-						// Handle unsuccessful uploads
+						console.log(error);
 					},
 					() => {
-						// Handle successful uploads on complete
-						// For instance, get the download URL: https://firebasestorage.googleapis.com/...
 						getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
 							console.log('File available at', downloadURL);
 							setUrl(downloadURL);
@@ -90,19 +96,41 @@ export default function Upload() {
 
 	return (
 		<div>
-			<Input type='file' onChange={e => setFile(e.target.files[0])} />
-
-			<div className='w-full h-[60vh] flex justify-center items-center flex-col'>
-				<video
-					src={`${url}`}
-					itemType='video/mp4'
-					className='w-[50%] h-[50vh] border rounded object-cover object-left'
-				></video>
-
+			<div className='w-full h-[100vh] flex justify-start items-center flex-col'>
+				<Input
+					type='file'
+					className='mb-5 mt-4 w-[50%] cursor-pointer'
+					onChange={e => setFile(e.target.files[0])}
+				/>
+				{file ? (
+					<video
+						src={`${url}`}
+						itemType='video/mp4'
+						className='w-[50%] h-[25vh] border rounded object-cover object-left'
+					></video>
+				) : (
+					<Empty description={'rasm tanlanmagan'} />
+				)}
+				<div className='mt-5 mb-3 w-full flex justify-center items-center flex-col'>
+					<Input
+						type='text'
+						placeholder="videoga sarlavha qo'ying"
+						className='mt-1 mb-3 w-[50%] h-[50px]'
+						onChange={e => setState({ ...state, title: e.target.value })}
+						value={state.title}
+					/>
+					<textarea
+						type='text'
+						placeholder="videoga sarlavha qo'ying"
+						className='mt-1 mb-3 w-[50%] h-[150px] outline-none border focus:border focus:border-blue-500 rounded-md p-3 transition-all duration-300'
+						onChange={e => setState({ ...state, description: e.target.value })}
+						value={state.description}
+					/>
+				</div>
 				{file && (
 					<Button
 						onClick={fileUplaod}
-						disabled={url || progress > 1 ? true : false}
+						disabled={url || progress > 0.1 ? true : false}
 						className='mt-5 mb-5 w-[130px] disabled:cursor-not-allowed disabled:border-green-500 disabled:bg-teal-100 h-[50px] flex justify-center items-center'
 					>
 						{file ? (

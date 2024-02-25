@@ -1,4 +1,5 @@
 import {
+	HomeOutlined,
 	MenuFoldOutlined,
 	MenuUnfoldOutlined,
 	UploadOutlined,
@@ -17,74 +18,85 @@ export default function LayoutComponent() {
 	} = theme.useToken();
 
 	const navigate = useNavigate();
+
+	if (typeof window != 'undefined' && window.document) {
+		document.body.style.overflow = 'hidden';
+	}
 	return (
-		<div>
-			<div className='min-h-screen grow-0 '>
+		<div className='min-h-screen grow-0 '>
+			<Layout>
+				<Sider
+					trigger={null}
+					unselectable='off'
+					collapsible
+					collapsed={collapsed}
+					className='absolute top-0 right-0 h-auto'
+				>
+					<div className='demo-logo-vertical' />
+					<Menu
+						theme='dark'
+						defaultSelectedKeys={['1']}
+						items={[
+							{
+								key: 'home',
+								icon: <HomeOutlined />,
+								label: 'home',
+								onClick: () => navigate('/'),
+							},
+							{
+								key: 'Profil',
+								icon: <UserOutlined />,
+								label: 'Profile',
+							},
+							{
+								key: 'Live',
+								icon: <VideoCameraOutlined />,
+								label: 'Live',
+							},
+							{
+								key: 'Upload',
+								icon: <UploadOutlined />,
+								label: 'Upload',
+								onClick: () => navigate('/upload'),
+							},
+						]}
+					/>
+				</Sider>
 				<Layout>
-					<Sider trigger={null} collapsible collapsed={collapsed}>
-						<div className='demo-logo-vertical' />
-						<Menu
-							theme='dark'
-							mode='inline'
-							defaultSelectedKeys={['1']}
-							items={[
-								{
-									key: 'home',
-									icon: <UserOutlined />,
-									label: 'home',
-									onClick: () => navigate('/'),
-								},
-								{
-									key: 'Profil',
-									icon: <UserOutlined />,
-									label: 'Profile',
-								},
-								{
-									key: 'Live',
-									icon: <VideoCameraOutlined />,
-									label: 'Live',
-								},
-								{
-									key: 'Upload',
-									icon: <UploadOutlined />,
-									label: 'Upload',
-									onClick: () => navigate('/upload'),
-								},
-							]}
+					<Header
+						style={{
+							padding: 0,
+							background: colorBgContainer,
+						}}
+					>
+						<Button
+							type='text'
+							icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+							onClick={() => setCollapsed(!collapsed)}
+							style={{
+								fontSize: '16px',
+								width: 64,
+								height: 64,
+							}}
 						/>
-					</Sider>
-					<Layout>
-						<Header
-							style={{
-								padding: 0,
-								background: colorBgContainer,
-							}}
-						>
-							<Button
-								type='text'
-								icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-								onClick={() => setCollapsed(!collapsed)}
-								style={{
-									fontSize: '16px',
-									width: 64,
-									height: 64,
-								}}
-							/>
-						</Header>
-						<Content
-							style={{
-								margin: '24px 16px',
-								padding: 24,
-								minHeight: '100vh',
-								background: colorBgContainer,
-								borderRadius: borderRadiusLG,
-							}}
-						>
+					</Header>
+					<Content
+						style={{
+							margin: '24px 16px',
+							padding: 24,
+							minHeight: '130vh',
+							border: '1px solid green',
+							background: colorBgContainer,
+							borderRadius: borderRadiusLG,
+							overflowX: 'scroll',
+						}}
+					>
+						<div>
 							<Outlet />
-						</Content>
-					</Layout>
+						</div>
+					</Content>
 				</Layout>
-			</div>
+			</Layout>
 		</div>
 	);
 }

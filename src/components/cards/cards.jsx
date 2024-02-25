@@ -1,14 +1,13 @@
-import { Card, Col, Row, Spin } from 'antd';
+import { Card, Col, Empty, Row, Spin } from 'antd';
 import { collection, getDocs } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { db } from '../../config/firebaseConfig';
 
 export default function Cards() {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(false);
-
-	const playVideo = e => {};
-
+	const navigate = useNavigate();
 	useEffect(() => {
 		(async () => {
 			setLoading(true);
@@ -24,26 +23,41 @@ export default function Cards() {
 		})();
 	}, []);
 	return (
-		<div className='w-full'>
+		<div className='w-full '>
 			{loading ? (
 				<div className='fixed w-full h-[100vh] top-0 left-0 flex justify-center items-center'>
 					<Spin />
 				</div>
 			) : (
-				<Row gutter={16} className='w-full border'>
-					{data.length === 0
-						? 'no such data'
-						: data.map((item, index) => (
-								<Col span={8} key={item.id}>
-									<Card title='Card title' bordered={true} loading={false}>
-										<video
-											src={`${item.url}`}
-											className='w-full h-[250px] border object-fill'
-											controls
-										></video>
-									</Card>
-								</Col>
-						  ))}
+				<Row gutter={16} className='w-full overflow-scroll'>
+					{data.length === 0 ? (
+						<div className='w-full h-[85vh] flex justify-center items-center  '>
+							<Empty />
+						</div>
+					) : (
+						data.map((item, index) => (
+							<Col span={8} key={item.id} className='overflow-scroll'>
+								<Card
+									title={item.title ? item.title : 'no title'}
+									bordered={true}
+									loading={loading ? true : false}
+									className='m-10 '
+								>
+									<video
+										src={`${item.url}`}
+										className='w-full h-[250px] border object-fill cursor-pointer'
+										onClick={() => navigate(`/watch/${item.id}`)}
+									></video>
+
+									<div>
+										<p className='text text-xl text-justify'>
+											{item.description}
+										</p>
+									</div>
+								</Card>
+							</Col>
+						))
+					)}
 				</Row>
 			)}
 		</div>
