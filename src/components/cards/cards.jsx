@@ -3,7 +3,6 @@ import { collection, getDocs } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../config/firebaseConfig';
-
 export default function Cards() {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -11,7 +10,7 @@ export default function Cards() {
 	useEffect(() => {
 		(async () => {
 			setLoading(true);
-			const colRef = collection(db, 'video');
+			const colRef = collection(db, 'videos');
 			const snapshots = await getDocs(colRef);
 			const docs = snapshots.docs.map(doc => {
 				const data = doc.data();
@@ -19,6 +18,7 @@ export default function Cards() {
 				return data;
 			});
 			setData(docs);
+
 			setLoading(false);
 		})();
 	}, []);
@@ -50,6 +50,9 @@ export default function Cards() {
 									></video>
 
 									<div>
+										<span className='text text-[15px] text-teal-500 text-justify'>
+											email: {item.email}
+										</span>
 										<p className='text text-xl text-justify'>
 											{item.description}
 										</p>

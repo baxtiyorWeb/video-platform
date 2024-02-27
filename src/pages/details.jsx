@@ -11,7 +11,7 @@ export default function Details() {
 	useEffect(() => {
 		const getAllData = async () => {
 			setLoading(true);
-			const docRef = doc(db, 'video', id);
+			const docRef = doc(db, 'videos', id);
 			const targetDoc = await getDoc(docRef);
 			setLoading(false);
 			return { user: setData(targetDoc.data()) };
@@ -34,6 +34,7 @@ export default function Details() {
 
 					<div className='flex justify-start w-full items-center mt-5 mb-3'>
 						<h1 className='text-2xl'>{data.title ? data.title : 'no title'}</h1>
+						<h1 className='text-2xl mr-5 ml-5 text-teal-500'>{data.email}</h1>
 					</div>
 				</div>
 			)}

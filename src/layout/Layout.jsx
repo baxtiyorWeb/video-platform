@@ -2,17 +2,21 @@ import {
 	HomeOutlined,
 	MenuFoldOutlined,
 	MenuUnfoldOutlined,
+	MessageOutlined,
 	UploadOutlined,
 	UserOutlined,
 	VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
-import React, { useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { auth } from '../config/firebaseConfig';
 const { Header, Sider, Content } = Layout;
 
-export default function LayoutComponent() {
+export default function LayoutComponent({ uiid }) {
 	const [collapsed, setCollapsed] = useState(false);
+	const [userId, setUserId] = useState(0);
 	const {
 		token: { colorBgContainer, borderRadiusLG },
 	} = theme.useToken();
@@ -22,6 +26,16 @@ export default function LayoutComponent() {
 	if (typeof window != 'undefined' && window.document) {
 		document.body.style.overflow = 'hidden';
 	}
+	useEffect(() => {
+		onAuthStateChanged(auth, user => {
+			if (user) {
+				const { uid } = user;
+				setUserId(uid);
+			} else {
+				navigate('/auth/login');
+			}
+		});
+	}, []);
 	return (
 		<div className='min-h-screen grow-0 '>
 			<Layout>
@@ -47,6 +61,7 @@ export default function LayoutComponent() {
 								key: 'Profil',
 								icon: <UserOutlined />,
 								label: 'Profile',
+								onClick: () => navigate('/profile'),
 							},
 							{
 								key: 'Live',
@@ -57,7 +72,13 @@ export default function LayoutComponent() {
 								key: 'Upload',
 								icon: <UploadOutlined />,
 								label: 'Upload',
-								onClick: () => navigate('/upload'),
+								onClick: () => navigate(`/upload/${uiid}`),
+							},
+							{
+								key: 'Chat',
+								icon: <MessageOutlined />,
+								label: 'Chat',
+								onClick: () => navigate(`/chat/${userId}`),
 							},
 						]}
 					/>
