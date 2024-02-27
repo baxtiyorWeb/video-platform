@@ -1,60 +1,49 @@
-import { Button, Input } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { Button, Input, message } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
 	addDoc,
 	collection,
-	doc,
 	getDocs,
+	onSnapshot,
+	orderBy,
 	query,
 	serverTimestamp,
 	where,
 } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { uid } from 'uid';
 import { auth, db } from '../config/firebaseConfig';
 
 export default function Chat({ uiid }) {
-	const { id } = useParams();
-	const [user, setUser] = useState([]);
 	const [users, setUsers] = useState([]);
 	const [data, setData] = useState([]);
 	const [idsD, setIdsD] = useState();
-	const [messages, setMessages] = useState('');
+	const [value, setValue] = useState([]);
+	const [messages, setMessages] = useState([]);
 	const [loading, setLoading] = useState(false);
 	useEffect(() => {
 		setLoading(true);
-		chats();
-		const q = query(collection);
-		setLoading(false);
-	}, [user]);
-
-	const chats = async () => {
-		const dbRef = collection(db, 'chat');
 		onAuthStateChanged(auth, async user => {
 			if (user) {
-				const { email, uid } = user;
 				setIdsD(user);
-				const docSnap = await getDocs(dbRef);
-				const datas = docSnap.docs.map(item => item.data());
-				setUsers(datas);
-				const userIDs = datas.filter(item => item.email === email);
-				const ids = userIDs.map(item => item.id);
-				const q = query(
-					collection(db, 'chat'),
-					where('id', '==', ids.toString())
-				);
 
-				const querySnapshot = await getDocs(q);
-				querySnapshot.forEach(async item => {
-					const userRef = doc(db, 'chat', item.id);
-					const id = item.id;
-					console.log(userRef.id);
-					const datas = data.filter(item => item.id === id);
+				const q = query(collection(db, 'chat'), orderBy('timestamp'));
+				const unsubcribe = onSnapshot(q, querySnapshot => {
+					let message = [];
+
+					querySnapshot.forEach(doc => {
+						message.push({ ...doc.data(), id: doc.id });
+					});
+					setMessages(message);
+					setUsers(message);
 				});
+				setLoading(false);
+				return () => unsubcribe();
 			}
 		});
-	};
+	}, []);
+
 	const getUsers = async () => {
 		const dbRef = collection(db, 'videos');
 		onAuthStateChanged(auth, async user => {
@@ -76,23 +65,23 @@ export default function Chat({ uiid }) {
 				const usersChatRef = collection(db, 'chat');
 				querySnapshot.forEach(async item => {
 					const id = uid();
-					const date = new Date().getTime();
-					console.log(item.email);
+					const timestamp = serverTimestamp();
 					const time = await addDoc(usersChatRef, {
-						msg: messages,
-						createdAt: serverTimestamp(),
+						msg: value,
 						email: email,
 						id: id,
+						timestamp: timestamp,
+						photo: idsD.photoURL === null ? UserOutlined : idsD.photoURL,
 					});
-
-					const datas = data.filter(item => item.id === id);
-					setUser(datas);
+					message.success('sending messages');
 				});
 			} else {
 				navigate('/auth/login');
 			}
 		});
 	};
+
+	const datas = users.map(item => console.log(item));
 
 	return (
 		<div className='flex justify-between items-center flex-col h-[80vh]'>
@@ -101,7 +90,7 @@ export default function Chat({ uiid }) {
 					<div className='flex flex-col w-auto  border p-5 '>
 						{loading
 							? 'loading...'
-							: users.map(item => (
+							: users?.map(item => (
 									<div
 										key={item.id}
 										className={`${
@@ -115,8 +104,22 @@ export default function Chat({ uiid }) {
 											key={item.id}
 										>
 											<div className='mr-3 border flex flex-col'>
-												<span className='text-blue-800'>{item.email}</span>
-												<span key={item.id}>{item.msg}</span>
+												<div className='text-blue-800 flex justify-center items-center border-b-2 p-3 '>
+													{idsD.photoURL === null ? (
+														<item.UserOutlined className='w-[40px] h-[40px] rounded-full border flex justify-center items-center mr-1 ml-1 text-[20px]' />
+													) : (
+														<img
+															className='w-[40px] h-[40px] rounded-full'
+															src={idsD.photoURL}
+															alt=''
+														/>
+													)}
+
+													<div>{item.email}</div>
+												</div>
+												<span key={item.id} className='mt-3 mb-3'>
+													{item.msg}
+												</span>
 											</div>
 										</div>
 									</div>
@@ -129,7 +132,7 @@ export default function Chat({ uiid }) {
 					type='text'
 					className='p-3 text-[18px]'
 					placeholder='enter your messages'
-					onChange={e => setMessages(e.target.value)}
+					onChange={e => setValue(e.target.value)}
 				/>
 				<Button onClick={getUsers} title='submit' className='h-full'>
 					submit

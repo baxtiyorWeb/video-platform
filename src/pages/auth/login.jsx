@@ -1,5 +1,9 @@
 import { Button, Input, message } from 'antd';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+	GoogleAuthProvider,
+	signInWithEmailAndPassword,
+	signInWithPopup,
+} from 'firebase/auth';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../../config/firebaseConfig';
@@ -11,6 +15,31 @@ export default function Login() {
 		email: '',
 		password: '',
 	});
+	const provider = new GoogleAuthProvider();
+	const loginWithGoogle = () => {
+		signInWithPopup(auth, provider)
+			.then(result => {
+				// This gives you a Google Access Token. You can use it to access the Google API.
+				const credential = GoogleAuthProvider.credentialFromResult(result);
+				const token = credential.accessToken;
+				// The signed-in user info.
+				const user = result.user;
+
+				navigate('/');
+				// IdP data available using getAdditionalUserInfo(result)
+				// ...
+			})
+			.catch(error => {
+				// Handle Errors here.
+				const errorCode = error.code;
+				const errorMessage = error.message;
+				// The email of the user's account used.
+				const email = error.customData.email;
+				// The AuthCredential type that was used.
+				const credential = GoogleAuthProvider.credentialFromError(error);
+				// ...
+			});
+	};
 	const loginWithEmailAndPassword = () => {
 		try {
 			setLoading(true);
@@ -53,6 +82,8 @@ export default function Login() {
 				onChange={e => setState({ ...state, password: e.target.value })}
 				value={state.password}
 			/>
+
+			<Button onClick={loginWithGoogle}>google +</Button>
 
 			<Button
 				loading={loading ? true : false}
