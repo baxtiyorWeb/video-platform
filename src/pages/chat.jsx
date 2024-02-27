@@ -43,30 +43,32 @@ export default function Chat({ uiid }) {
 		});
 	}
 
-	const postData = async () => {
-		const dbRef = collection(db, 'videos');
-		onAuthStateChanged(auth, async user => {
-			if (user) {
-				const { email, photoURL, displayName } = user;
-				setIdsD(user);
+	const postData = async e => {
+		if (value !== '') {
+			const dbRef = collection(db, 'videos');
+			onAuthStateChanged(auth, async user => {
+				if (user) {
+					const { email, photoURL, displayName } = user;
+					setIdsD(user);
 
-				const id = uid();
-				const timestamp = serverTimestamp();
-				const usersChatRef = collection(db, 'chat');
-				let date = new Date();
-				const time = await addDoc(usersChatRef, {
-					msg: value,
-					email: email,
-					name: displayName,
-					id: id,
-					timestamp: timestamp,
-					photo: photoURL,
-				});
-				message.success('sending messages');
-			} else {
-				navigate('/auth/login');
-			}
-		});
+					const id = uid();
+					const timestamp = serverTimestamp();
+					const usersChatRef = collection(db, 'chat');
+					let date = new Date();
+					const time = await addDoc(usersChatRef, {
+						msg: value,
+						email: email,
+						name: displayName,
+						id: id,
+						timestamp: timestamp,
+						photo: photoURL,
+					});
+					message.success('sending messages');
+				} else {
+					navigate('/auth/login');
+				}
+			});
+		}
 	};
 
 	return (
@@ -125,6 +127,7 @@ export default function Chat({ uiid }) {
 					className='p-3 text-[18px]'
 					placeholder='enter your messages'
 					onChange={e => setValue(e.target.value)}
+					onKeyDown={e => (e.key === 'Enter' ? postData() : '')}
 				/>
 				<Button onClick={postData} title='submit' className='h-full'>
 					submit
