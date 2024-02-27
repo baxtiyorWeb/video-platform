@@ -4,12 +4,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import {
 	addDoc,
 	collection,
-	getDocs,
 	onSnapshot,
 	orderBy,
 	query,
 	serverTimestamp,
-	where,
 } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { uid } from 'uid';
@@ -48,40 +46,26 @@ export default function Chat({ uiid }) {
 		const dbRef = collection(db, 'videos');
 		onAuthStateChanged(auth, async user => {
 			if (user) {
-				const { email } = user;
+				const { email, photoURL, displayName } = user;
 				setIdsD(user);
 
-				const docSnap = await getDocs(dbRef);
-				const datas = docSnap.docs.map(item => item.data());
-				const userIDs = datas.filter(item => item.email === email);
-				const ids = userIDs.map(item => item.id);
-
-				const q = query(
-					collection(db, 'videos'),
-					where('id', '==', ids.toString())
-				);
-
-				const querySnapshot = await getDocs(q);
+				const id = uid();
+				const timestamp = serverTimestamp();
 				const usersChatRef = collection(db, 'chat');
-				querySnapshot.forEach(async item => {
-					const id = uid();
-					const timestamp = serverTimestamp();
-					const time = await addDoc(usersChatRef, {
-						msg: value,
-						email: email,
-						id: id,
-						timestamp: timestamp,
-						photo: idsD.photoURL === null ? UserOutlined : idsD.photoURL,
-					});
-					message.success('sending messages');
+				const time = await addDoc(usersChatRef, {
+					msg: value,
+					email: email,
+					name: displayName,
+					id: id,
+					timestamp: timestamp,
+					photo: photoURL,
 				});
+				message.success('sending messages');
 			} else {
 				navigate('/auth/login');
 			}
 		});
 	};
-
-	const datas = users.map(item => console.log(item));
 
 	return (
 		<div className='flex justify-between items-center flex-col h-[80vh]'>
@@ -106,7 +90,7 @@ export default function Chat({ uiid }) {
 											<div className='mr-3 border flex flex-col'>
 												<div className='text-blue-800 flex justify-center items-center border-b-2 p-3 '>
 													{idsD.photoURL === null ? (
-														<item.UserOutlined className='w-[40px] h-[40px] rounded-full border flex justify-center items-center mr-1 ml-1 text-[20px]' />
+														<UserOutlined className='w-[40px] h-[40px] rounded-full border flex justify-center items-center mr-1 ml-1 text-[20px]' />
 													) : (
 														<img
 															className='w-[40px] h-[40px] rounded-full'
