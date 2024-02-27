@@ -25,6 +25,7 @@ export default function Chat({ uiid }) {
 	useEffect(() => {
 		setLoading(true);
 		chats();
+		const q = query(collection);
 		setLoading(false);
 	}, [user]);
 

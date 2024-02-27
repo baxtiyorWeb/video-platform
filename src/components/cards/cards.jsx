@@ -29,39 +29,44 @@ export default function Cards() {
 					<Spin />
 				</div>
 			) : (
-				<Row gutter={16} className='w-full overflow-scroll'>
-					{data.length === 0 ? (
-						<div className='w-full h-[85vh] flex justify-center items-center  '>
-							<Empty />
-						</div>
-					) : (
-						data.map((item, index) => (
-							<Col span={8} key={item.id} className='overflow-scroll'>
-								<Card
-									title={item.title ? item.title : 'no title'}
-									bordered={true}
-									loading={loading ? true : false}
-									className='m-10 '
-								>
-									<video
-										src={`${item.url}`}
-										className='w-full h-[250px] border object-fill cursor-pointer'
-										onClick={() => navigate(`/watch/${item.id}`)}
-									></video>
-
-									<div>
-										<span className='text text-[15px] text-teal-500 text-justify'>
-											email: {item.email}
-										</span>
-										<p className='text text-xl text-justify'>
-											{item.description}
-										</p>
-									</div>
-								</Card>
-							</Col>
-						))
-					)}
-				</Row>
+				<div className='h-full overflow-scroll'>
+					<Row gutter={16} className='w-full '>
+						{data.length === 0 ? (
+							<div className='w-full h-[85vh] flex justify-center items-center  '>
+								<Empty />
+							</div>
+						) : (
+							data.map((item, index) =>
+								item.url.length === 0 ? (
+									''
+								) : (
+									<Col span={8} key={item.id} className='overflow-scroll'>
+										<Card
+											title={item.title ? item.title : 'no title'}
+											bordered={true}
+											loading={loading ? true : false}
+											className='m-10 '
+										>
+											<video
+												src={`${item.url}`}
+												className='w-full h-[250px] border object-fill cursor-pointer'
+												onClick={() => navigate(`/watch/${item.id}`)}
+											></video>
+											<div>
+												<span className='text text-[15px] text-teal-500 text-justify'>
+													email: {item.email}
+												</span>
+												<p className='text text-xl text-justify'>
+													{item.description}
+												</p>
+											</div>
+										</Card>
+									</Col>
+								)
+							)
+						)}
+					</Row>
+				</div>
 			)}
 		</div>
 	);
