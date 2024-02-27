@@ -4,9 +4,11 @@ import {
 	signInWithEmailAndPassword,
 	signInWithPopup,
 } from 'firebase/auth';
+import { addDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../../config/firebaseConfig';
+import { uid } from 'uid';
+import { auth, db } from '../../config/firebaseConfig';
 
 export default function Login() {
 	const [loading, setLoading] = useState(false);
@@ -24,7 +26,20 @@ export default function Login() {
 				const token = credential.accessToken;
 				// The signed-in user info.
 				const user = result.user;
-
+				const date = new Date();
+				const uiid = uid();
+				const dateNow = `${date.getDay()} : ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}`;
+				const docRef = addDoc(collection(db, 'videos'), {
+					date: dateNow,
+					descripton: '',
+					id: uiid,
+					title: '',
+					url: '',
+					profileImg: user.photoURL,
+					userName: user.displayName,
+					password: '',
+					email: user.email,
+				});
 				navigate('/');
 				// IdP data available using getAdditionalUserInfo(result)
 				// ...
@@ -34,7 +49,6 @@ export default function Login() {
 				const errorCode = error.code;
 				const errorMessage = error.message;
 				// The email of the user's account used.
-				const email = error.customData.email;
 				// The AuthCredential type that was used.
 				const credential = GoogleAuthProvider.credentialFromError(error);
 				// ...
