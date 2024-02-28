@@ -6,6 +6,7 @@ import { db } from '../../config/firebaseConfig';
 export default function Cards() {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(false);
+	const [ids, setIds] = useState('');
 	const navigate = useNavigate();
 	useEffect(() => {
 		(async () => {
@@ -18,7 +19,8 @@ export default function Cards() {
 				return data;
 			});
 			setData(docs);
-
+			const res = data.map(item => (item.url.innerHTML === '' ? true : false));
+			setIds(res);
 			setLoading(false);
 		})();
 	}, []);
@@ -31,13 +33,13 @@ export default function Cards() {
 			) : (
 				<div className='h-full overflow-scroll'>
 					<Row gutter={16} className='w-full '>
-						{data.length === 0 ? (
+						{ids ? (
 							<div className='w-full h-[85vh] flex justify-center items-center  '>
 								<Empty />
 							</div>
 						) : (
 							data.map((item, index) =>
-								item.url.length === 0 ? (
+								item.title.length === 0 ? (
 									''
 								) : (
 									<Col span={8} key={item.id} className='overflow-scroll'>
