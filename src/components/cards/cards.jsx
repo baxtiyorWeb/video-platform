@@ -33,7 +33,7 @@ export default function Cards() {
 			) : (
 				<div className='h-full overflow-scroll'>
 					<Row gutter={16} className='w-full '>
-						{ids ? (
+						{ids === true ? (
 							<div className='w-full h-[85vh] flex justify-center items-center  '>
 								<Empty />
 							</div>
@@ -49,11 +49,29 @@ export default function Cards() {
 											loading={loading ? true : false}
 											className='m-10 '
 										>
-											<video
-												src={`${item.url}`}
-												className='w-full h-[250px] border object-fill cursor-pointer'
-												onClick={() => navigate(`/watch/${item.id}`)}
-											></video>
+											{item.type === '' ? (
+												''
+											) : item.type === 'video' ? (
+												<video
+													src={`${item.url}`}
+													className='w-full h-[250px] border object-fill cursor-pointer'
+													onClick={() => navigate(`/watch/${item.id}`)}
+												></video>
+											) : (
+												''
+											)}
+
+											{item.type === '' ? (
+												''
+											) : item.type === 'rasm' ? (
+												<img
+													src={`${item.url}`}
+													className='w-full h-[250px] border object-fill '
+												></img>
+											) : (
+												''
+											)}
+
 											<div>
 												<span className='text text-[15px] text-teal-500 text-justify'>
 													email: {item.email}

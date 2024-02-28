@@ -1,4 +1,4 @@
-import { Button, Empty, Input, Progress, message } from 'antd';
+import { Button, Empty, Input, Progress, Select, message } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
 	collection,
@@ -31,6 +31,7 @@ export default function Upload() {
 		title: '',
 		description: '',
 		date: dateNow,
+		type: '',
 	});
 
 	useEffect(() => {
@@ -47,49 +48,57 @@ export default function Upload() {
 		const dbRef = collection(db, 'videos');
 		try {
 			if (url) {
-				setIsLoading(true);
+				if (
+					state.date != '' &&
+					state.description != '' &&
+					state.title != '' &&
+					state.type != ''
+				) {
+					setIsLoading(true);
 
-				const docSnap = await getDocs(dbRef);
-				const datas = docSnap.docs.forEach(item => {
-					setData(item.data());
-				});
+					const docSnap = await getDocs(dbRef);
+					const datas = docSnap.docs.forEach(item => {
+						setData(item.data());
+					});
 
-				onAuthStateChanged(auth, async user => {
-					if (data.id === user.uid) {
-						message.warning('bu user oldindan mavjud');
-					} else {
-						if (user) {
-							const { email } = user;
-
-							console.log(data.email);
-							const docSnap = await getDocs(dbRef);
-							const datas = docSnap.docs.map(item => item.data());
-							const userIDs = datas.filter(item => item.email === email);
-							const ids = userIDs.map(item => item.id);
-
-							const q = query(
-								collection(db, 'videos'),
-								where('id', '==', ids.toString())
-							);
-
-							const querySnapshot = await getDocs(q);
-							querySnapshot.forEach(async item => {
-								const userRef = doc(db, 'videos', item.id);
-								await updateDoc(userRef, {
-									date: dateNow,
-									description: state.description,
-									title: state.title,
-									url: url,
-									email: email,
-								});
-
-								message.success("sizning videongiz qo'shildi");
-							});
+					onAuthStateChanged(auth, async user => {
+						if (data.id === user.uid) {
+							message.warning('bu user oldindan mavjud');
 						} else {
-							navigate('/auth/login');
+							if (user) {
+								const { email } = user;
+
+								console.log(data.email);
+								const docSnap = await getDocs(dbRef);
+								const datas = docSnap.docs.map(item => item.data());
+								const userIDs = datas.filter(item => item.email === email);
+								const ids = userIDs.map(item => item.id);
+
+								const q = query(
+									collection(db, 'videos'),
+									where('id', '==', ids.toString())
+								);
+
+								const querySnapshot = await getDocs(q);
+								querySnapshot.forEach(async item => {
+									const userRef = doc(db, 'videos', item.id);
+									await updateDoc(userRef, {
+										date: dateNow,
+										description: state.description,
+										title: state.title,
+										type: state.type,
+										url: url,
+										email: email,
+									});
+
+									message.success("sizning videongiz qo'shildi");
+								});
+							} else {
+								navigate('/auth/login');
+							}
 						}
-					}
-				});
+					});
+				}
 			}
 		} catch (error) {
 			console.log(error);
@@ -151,15 +160,24 @@ export default function Upload() {
 					onChange={e => setFile(e.target.files[0])}
 				/>
 				{file ? (
-					<video
-						src={`${url}`}
-						itemType='video/mp4'
-						className='w-[50%] h-[25vh] border rounded object-cover object-left'
-					></video>
+					(
+						<img
+							src={url}
+							className='w-[50%] h-[25vh] border rounded object-fill object-center'
+							alt=''
+						/>
+					) || (
+						<video
+							src={`${url}`}
+							itemType='video/mp4'
+							className='w-[50%] h-[25vh] border rounded object-fill object-center'
+						></video>
+					)
 				) : (
 					<Empty description={'rasm tanlanmagan'} />
 				)}
 				<div className='mt-5 mb-3 w-full flex justify-center items-center flex-col'>
+					*
 					<Input
 						type='text'
 						placeholder="videoga sarlavha qo'ying"
@@ -167,6 +185,7 @@ export default function Upload() {
 						onChange={e => setState({ ...state, title: e.target.value })}
 						value={state.title}
 					/>
+					*
 					<textarea
 						type='text'
 						placeholder="videoga sarlavha qo'ying"
@@ -175,6 +194,26 @@ export default function Upload() {
 						value={state.description}
 					/>
 				</div>
+				{file && (
+					<>
+						*
+						<Select
+							placeholder={'rasm yoki video tanlang'}
+							options={[
+								{
+									value: 'video',
+									label: 'video',
+								},
+								{
+									value: 'rasm',
+									label: 'rasm',
+								},
+							]}
+							onChange={e => setState({ ...state, type: e })}
+							className='w-[50%]]'
+						/>
+					</>
+				)}
 				{file && (
 					<Button
 						onClick={fileUplaod}
