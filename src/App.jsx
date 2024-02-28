@@ -1,6 +1,6 @@
 import { collection, getDocs } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import Upload from './components/upload';
 import { db } from './config/firebaseConfig';
@@ -16,6 +16,7 @@ function App() {
 	const [loading, setLoading] = useState();
 	const [userId, setUserId] = useState([]);
 	const [data, setData] = useState([]);
+	const navigate = useNavigate();
 	useEffect(() => {
 		(async () => {
 			setLoading(true);

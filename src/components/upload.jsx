@@ -14,7 +14,8 @@ import {
 	uploadBytes,
 	uploadBytesResumable,
 } from 'firebase/storage';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { auth, db, storage } from '../config/firebaseConfig';
 
 export default function Upload() {
@@ -23,6 +24,7 @@ export default function Upload() {
 	const [progress, setProgress] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
 	const [data, setData] = useState([]);
+	const navigate = useNavigate();
 	const date = new Date();
 	const dateNow = `${date.getDay()} : ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}`;
 	const [state, setState] = useState({
@@ -30,6 +32,16 @@ export default function Upload() {
 		description: '',
 		date: dateNow,
 	});
+
+	useEffect(() => {
+		onAuthStateChanged(auth, user => {
+			if (user) {
+				const users = user;
+			} else {
+				navigate('/auth/login');
+			}
+		});
+	}, []);
 
 	const saveData = async () => {
 		const dbRef = collection(db, 'videos');

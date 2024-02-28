@@ -3,49 +3,87 @@ import { onAuthStateChanged } from 'firebase/auth';
 import {
 	addDoc,
 	collection,
+	doc,
 	onSnapshot,
 	orderBy,
 	query,
 	serverTimestamp,
+	updateDoc,
 } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Detector } from 'react-detect-offline';
+import { useNavigate } from 'react-router-dom';
 import { uid } from 'uid';
 import { auth, db } from '../config/firebaseConfig';
 
 export default function Chat({ uiid }) {
 	const [users, setUsers] = useState([]);
 	const [idsD, setIdsD] = useState();
+	const [onlineUserID, setOnlineUserID] = useState('');
 	const [value, setValue] = useState([]);
+	const [detect, setDetect] = useState();
 	const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
 	useEffect(() => {
 		fetchMessages();
+		scrollToBottom();
 	}, []);
 
 	function fetchMessages() {
+		const updateOnlineStatus = async (userId, status) => {
+			const userDocRef = doc(db, 'chat', userId);
+			await updateDoc(userDocRef, {
+				status: status,
+				reading: false,
+			});
+		};
+
+		// Auth durum değişikliklerini izle
 		onAuthStateChanged(auth, async user => {
 			setLoading(true);
+
 			if (user) {
 				setIdsD(user);
 
-				const q = query(collection(db, 'chat'), orderBy('timestamp'));
-				const unsubcribe = onSnapshot(q, querySnapshot => {
-					let message = [];
+				// Kullanıcı giriş yaptığında "online" olarak işaretle
 
-					querySnapshot.forEach(doc => {
-						message.push({ ...doc.data(), id: doc.id });
+				const q = query(collection(db, 'chat'), orderBy('timestamp'));
+				const unsubscribe = onSnapshot(q, querySnapshot => {
+					let messages = [];
+
+					querySnapshot.forEach(async doc => {
+						messages.push({ ...doc.data(), id: doc.id });
+						setOnlineUserID(doc.id, 'online');
 					});
-					setUsers(message);
+
+					setUsers(messages);
 					setLoading(false);
 				});
 
-				return () => unsubcribe();
+				return () => {
+					// Kullanıcı çıkış yaptığında "offline" olarak işaretle
+					updateOnlineStatus(onlineUserID, 'offline');
+					readingMessage();
+					unsubscribe();
+				};
+			} else {
+				navigate('/auth/login');
 			}
 		});
 	}
+	const messageDivRef = useRef(null);
+
+	// Function to scroll to the bottom
+	const scrollToBottom = () => {
+		if (messageDivRef.current) {
+			messageDivRef.current.scrollTop = messageDivRef.current.scrollHeight;
+		}
+	};
+
+	// Barcha foydalanuvchilarni olish
 
 	const postData = async e => {
 		if (value !== '') {
-			const dbRef = collection(db, 'videos');
 			onAuthStateChanged(auth, async user => {
 				if (user) {
 					const { email, photoURL, displayName } = user;
@@ -63,6 +101,7 @@ export default function Chat({ uiid }) {
 						timestamp: timestamp,
 						photo: photoURL,
 					});
+					scrollToBottom();
 					message.success('sending messages');
 				} else {
 					navigate('/auth/login');
@@ -73,8 +112,9 @@ export default function Chat({ uiid }) {
 
 	return (
 		<div className='flex justify-between items-center flex-col h-[80vh]'>
-			<div className='w-full overflow-scroll'>
-				<div className='flex flex-col w-full  h-[80vh] '>
+			<div className='w-full overflow-scroll relative' ref={messageDivRef}>
+				<div className='w-[50px] h-[50px] rounded-full border fixed right-[60px] bottom-[180px] z-10 cursor-pointer'></div>
+				<div className='flex flex-col w-full  h-[70vh] '>
 					<div className='flex flex-col w-auto h-full  p-5  '>
 						{loading ? (
 							<Spin />
@@ -86,8 +126,8 @@ export default function Chat({ uiid }) {
 									key={item.id}
 									className={`${
 										item?.email === idsD?.email
-											? 'text-teal-500  border flex justify-end items-end flex-col w-full mt-3 mb-3'
-											: 'text-red-500 flex justify-start items-start flex-col w-full mt-3 mb-3 border'
+											? 'text-teal-500  border flex justify-end relative items-end flex-col w-full mt-3 mb-3'
+											: 'text-red-500 flex justify-start items-start relative flex-col w-full mt-3 mb-3 border'
 									}`}
 								>
 									<div
@@ -96,6 +136,18 @@ export default function Chat({ uiid }) {
 									>
 										<div className='mr-3  flex flex-col'>
 											<div className='text-blue-800 flex justify-center items-center p-3 '>
+												<Detector
+													polling={true}
+													render={({ online }) => (
+														<div
+															className={
+																online
+																	? 'w-[15px] absolute right-0 bottom-0 h-[15px] rounded-[100%] bg-green-500'
+																	: 'w-[15px] h-[15px] absolute right-0 bottom-0 rounded-[100%] bg-red-500'
+															}
+														></div>
+													)}
+												/>
 												<img
 													className='w-[40px] h-[40px] rounded-full mr-3'
 													src={

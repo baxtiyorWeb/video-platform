@@ -44,7 +44,7 @@ export default function LayoutComponent({ uiid }) {
 					unselectable='off'
 					collapsible
 					collapsed={collapsed}
-					className='absolute top-0 right-0 h-auto'
+					className='absolute top-0 right-0 h-auto '
 				>
 					<div className='demo-logo-vertical' />
 					<Menu
