@@ -38,6 +38,7 @@ export default function Login() {
 					profileImg: user.photoURL,
 					userName: user.displayName,
 					password: '',
+					type: '',
 					email: user.email,
 				});
 				navigate('/');
