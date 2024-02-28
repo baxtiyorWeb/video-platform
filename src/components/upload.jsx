@@ -1,4 +1,4 @@
-import { Button, Empty, Input, Progress, Select, message } from 'antd';
+import { Button, Input, Progress, Select, message } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
 	collection,
@@ -159,41 +159,6 @@ export default function Upload() {
 					className='mb-5 mt-4 w-[50%] cursor-pointer'
 					onChange={e => setFile(e.target.files[0])}
 				/>
-				{file ? (
-					(
-						<img
-							src={url}
-							className='w-[50%] h-[25vh] border rounded object-fill object-center'
-							alt=''
-						/>
-					) || (
-						<video
-							src={`${url}`}
-							itemType='video/mp4'
-							className='w-[50%] h-[25vh] border rounded object-fill object-center'
-						></video>
-					)
-				) : (
-					<Empty description={'rasm tanlanmagan'} />
-				)}
-				<div className='mt-5 mb-3 w-full flex justify-center items-center flex-col'>
-					*
-					<Input
-						type='text'
-						placeholder="videoga sarlavha qo'ying"
-						className='mt-1 mb-3 w-[50%] h-[50px]'
-						onChange={e => setState({ ...state, title: e.target.value })}
-						value={state.title}
-					/>
-					*
-					<textarea
-						type='text'
-						placeholder="videoga sarlavha qo'ying"
-						className='mt-1 mb-3 w-[50%] h-[150px] outline-none border focus:border focus:border-blue-500 rounded-md p-3 transition-all duration-300'
-						onChange={e => setState({ ...state, description: e.target.value })}
-						value={state.description}
-					/>
-				</div>
 				{file && (
 					<>
 						*
@@ -214,6 +179,38 @@ export default function Upload() {
 						/>
 					</>
 				)}
+				{state.type === 'video' && (
+					<video
+						src={`${url}`}
+						itemType='video/mp4'
+						className='w-[50%] h-[25vh] border rounded object-fill object-center'
+					></video>
+				)}
+				{state.type === 'rasm' && (
+					<img
+						src={`${url}`}
+						className='w-[50%] h-[25vh] border rounded object-fill object-center'
+					></img>
+				)}
+				<div className='mt-5 mb-3 w-full flex justify-center items-center flex-col'>
+					*
+					<Input
+						type='text'
+						placeholder="videoga sarlavha qo'ying"
+						className='mt-1 mb-3 w-[50%] h-[50px]'
+						onChange={e => setState({ ...state, title: e.target.value })}
+						value={state.title}
+					/>
+					*
+					<textarea
+						type='text'
+						placeholder="videoga sarlavha qo'ying"
+						className='mt-1 mb-3 w-[50%] h-[150px] outline-none border focus:border focus:border-blue-500 rounded-md p-3 transition-all duration-300'
+						onChange={e => setState({ ...state, description: e.target.value })}
+						value={state.description}
+					/>
+				</div>
+
 				{file && (
 					<Button
 						onClick={fileUplaod}
