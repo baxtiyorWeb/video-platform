@@ -164,7 +164,7 @@ export default function Chat({ uiid }) {
 
 												{item.photo === null ? (
 													<div
-														className={`w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle`}
+														className={`select-none w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle`}
 													>
 														<span>{item.email.split('', 1)}</span>
 													</div>
