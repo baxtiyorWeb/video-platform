@@ -153,7 +153,7 @@ export default function Chat({ uiid }) {
 										key={item.id}
 									>
 										<div className='mr-3  flex flex-col'>
-											<div className='text-blue-800 flex justify-center items-center p-3 '>
+											<div className='text-blue-800 flex justify-start items-center p-3 '>
 												<div
 													className={
 														item.status
@@ -170,7 +170,7 @@ export default function Chat({ uiid }) {
 													</div>
 												) : (
 													<img
-														className='w-[40px] h-[40px] rounded-full mr-3'
+														className='w-[40px] h-[40px] rounded-full mr-3 '
 														src={
 															item.photo ||
 															'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png'
