@@ -25,16 +25,16 @@ export default function Cards() {
 		})();
 	}, []);
 	return (
-		<div className='w-full '>
+		<div className='w-full   '>
 			{loading ? (
-				<div className='fixed w-full h-[100vh] top-0 left-0 flex justify-center items-center'>
+				<div className='w-full  flex justify-center items-center'>
 					<Spin />
 				</div>
 			) : (
-				<div className='h-full overflow-scroll'>
-					<Row gutter={16} className='w-full '>
+				<div className='h-full overflow-scroll '>
+					<Row gutter={16} className='w-full h-[100vh] '>
 						{ids === true ? (
-							<div className='w-full h-[85vh] flex justify-center items-center  '>
+							<div className='w-full  flex justify-center items-center  '>
 								<Empty />
 							</div>
 						) : (
@@ -42,12 +42,12 @@ export default function Cards() {
 								item.title.length === 0 ? (
 									''
 								) : (
-									<Col span={8} key={item.id} className='overflow-scroll'>
+									<Col span={8} key={item.id}>
 										<Card
 											title={item.title ? item.title : 'no title'}
 											bordered={true}
 											loading={loading ? true : false}
-											className='m-10 '
+											className='m-10 h-[510px]'
 										>
 											{item.type === '' ? (
 												''
