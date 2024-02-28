@@ -15,6 +15,10 @@ export default function Register({ userId }) {
 	async function addManageData(uid, email) {
 		const date = new Date();
 		const dateNow = `${date.getDay()} : ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}`;
+		const R = Math.floor(Math.random() * 255);
+		const G = Math.floor(Math.random() * 255);
+		const B = Math.floor(Math.random() * 255);
+
 		const docRef = await addDoc(collection(db, 'videos'), {
 			date: dateNow,
 			descripton: '',
@@ -22,6 +26,7 @@ export default function Register({ userId }) {
 			title: '',
 			url: '',
 			profileImg: '',
+			photoUrl: `rgb(${R} ${G} ${B})`,
 			userName: '',
 			password: '',
 			email: email,

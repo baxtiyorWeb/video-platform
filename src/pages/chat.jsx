@@ -21,6 +21,7 @@ export default function Chat({ uiid }) {
 	const [onlineUserID, setOnlineUserID] = useState('');
 	const [value, setValue] = useState([]);
 	const [loading, setLoading] = useState(false);
+
 	const navigate = useNavigate();
 	useEffect(() => {
 		fetchMessages();
@@ -97,32 +98,31 @@ export default function Chat({ uiid }) {
 		}
 	};
 
-	// Barcha foydalanuvchilarni olish
-
 	const postData = async e => {
-		if (value !== '') {
+		if (value != '') {
 			onAuthStateChanged(auth, async user => {
-				if (user) {
-					const { email, photoURL, displayName } = user;
-					setIdsD(user);
+				if (message !== '') {
+					if (user) {
+						const { email, photoURL, displayName } = user;
+						setIdsD(user);
 
-					const id = uid();
-					const timestamp = serverTimestamp();
-					const usersChatRef = collection(db, 'chat');
-					let date = new Date();
-					const time = await addDoc(usersChatRef, {
-						msg: value,
-						email: email,
-						name: displayName,
-						id: id,
-						timestamp: timestamp,
-						photo: photoURL,
-						status: true,
-					});
-					scrollToBottom();
-					message.success('sending messages');
-				} else {
-					navigate('/auth/login');
+						const id = uid();
+						const timestamp = serverTimestamp();
+						const usersChatRef = collection(db, 'chat');
+						const time = await addDoc(usersChatRef, {
+							msg: value,
+							email: email,
+							name: displayName,
+							id: id,
+							timestamp: timestamp,
+							photo: photoURL,
+							status: true,
+						});
+						scrollToBottom();
+						message.success('sending messages');
+					} else {
+						navigate('/auth/login');
+					}
 				}
 			});
 		}
@@ -162,16 +162,22 @@ export default function Chat({ uiid }) {
 													}
 												></div>
 
-												<img
-													className='w-[40px] h-[40px] rounded-full mr-3'
-													src={
-														item.photo ||
-														'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png'
-													}
-													alt=''
-												/>
-
-												<div>{item.email}</div>
+												{item.photo === null ? (
+													<div
+														className={`w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle`}
+													>
+														<span>{item.email.split('', 1)}</span>
+													</div>
+												) : (
+													<img
+														className='w-[40px] h-[40px] rounded-full mr-3'
+														src={
+															item.photo ||
+															'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png'
+														}
+														alt=''
+													/>
+												)}
 											</div>
 											<span key={item.id} className='mt-3 mb-3'>
 												{item.msg}
