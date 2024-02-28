@@ -31,17 +31,17 @@ export default function Login() {
 				const dateNow = `${date.getDay()} : ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}`;
 				const docRef = addDoc(collection(db, 'videos'), {
 					date: dateNow,
-					descripton: '',
+					description: '',
 					id: uiid,
 					title: '',
 					url: '',
-					profileImg: user.photoURL,
-					userName: user.displayName,
+					profileImg: '',
+					photoUrl: user.photoURL,
+					userName: '',
 					password: '',
-					type: '',
-					email: user.email,
+					email: email,
 				});
-				navigate('/');
+				navigate('/profile');
 				// IdP data available using getAdditionalUserInfo(result)
 				// ...
 			})

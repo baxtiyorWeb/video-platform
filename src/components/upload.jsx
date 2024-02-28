@@ -82,7 +82,7 @@ export default function Upload() {
 								const querySnapshot = await getDocs(q);
 								querySnapshot.forEach(async item => {
 									const userRef = doc(db, 'videos', item.id);
-									await updateDoc(userRef, {
+									const datas = await updateDoc(userRef, {
 										date: dateNow,
 										description: state.description,
 										title: state.title,
@@ -90,6 +90,8 @@ export default function Upload() {
 										url: url,
 										email: email,
 									});
+
+									console.log(datas);
 
 									message.success("sizning videongiz qo'shildi");
 								});
