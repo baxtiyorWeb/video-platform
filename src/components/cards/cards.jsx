@@ -79,6 +79,8 @@ export default function Cards() {
 												<p className='text text-xl text-justify'>
 													{item.description}
 												</p>
+												<span>turi: {item.type}</span>
+												<br />
 											</div>
 										</Card>
 									</Col>
