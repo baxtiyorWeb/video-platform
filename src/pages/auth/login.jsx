@@ -1,15 +1,8 @@
 import { Button, Input, message } from 'antd';
-import {
-	GoogleAuthProvider,
-	getRedirectResult,
-	signInWithEmailAndPassword,
-	signInWithRedirect,
-} from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { uid } from 'uid';
-import { auth, db } from '../../config/firebaseConfig';
+import { auth } from '../../config/firebaseConfig';
 
 export default function Login() {
 	const [loading, setLoading] = useState(false);
@@ -18,56 +11,6 @@ export default function Login() {
 		email: '',
 		password: '',
 	});
-
-	useEffect(() => {
-		setLoading(true);
-		getRedirectResult(auth)
-			.then(response => {
-				if (!response) return;
-
-				// Your code here
-				console.log(response);
-				const { displayName, email, photoURL } = response.user;
-				const uiid = uid();
-				addDoc(collection(db, 'videos'), {
-					date: serverTimestamp(),
-					description: '',
-					id: uiid,
-					title: '',
-					url: '',
-					profileImg: '',
-					photoUrl: photoURL,
-					userName: displayName,
-					password: '',
-					email: email,
-				});
-				message.success('login successfully');
-				navigate('/profile');
-			})
-			.catch(error => {
-				console.error(error);
-			})
-			.finally(() => setLoading(false));
-	}, []);
-
-	const provider = new GoogleAuthProvider();
-	const loginWithGoogle = () => {
-		signInWithRedirect(auth, provider)
-			.then(result => {
-				// This gives you a Google Access Token. You can use it to access the Google API.
-				// IdP data available using getAdditionalUserInfo(result)
-				// ...
-			})
-			.catch(error => {
-				// Handle Errors here.
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				// The email of the user's account used.
-				// The AuthCredential type that was used.
-				const credential = GoogleAuthProvider.credentialFromError(error);
-				// ...
-			});
-	};
 	const loginWithEmailAndPassword = () => {
 		try {
 			setLoading(true);
@@ -76,6 +19,7 @@ export default function Login() {
 					// Signed in
 					const user = userCredential.user;
 					console.log(user.uid);
+					navigate('/');
 					// ...
 				})
 				.catch(error => {
@@ -106,8 +50,6 @@ export default function Login() {
 				onChange={e => setState({ ...state, password: e.target.value })}
 				value={state.password}
 			/>
-
-			<Button onClick={loginWithGoogle}>google +</Button>
 
 			<Button
 				loading={loading ? true : false}

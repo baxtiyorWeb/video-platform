@@ -21,6 +21,7 @@ import { auth, db, storage } from '../config/firebaseConfig';
 export default function Upload() {
 	const [file, setFile] = useState(null);
 	const [url, setUrl] = useState(null);
+	const [userAbout, setUserAbout] = useState();
 	const [progress, setProgress] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
 	const [data, setData] = useState([]);
@@ -38,6 +39,7 @@ export default function Upload() {
 		onAuthStateChanged(auth, user => {
 			if (user) {
 				const users = user;
+				setUserAbout(users);
 			} else {
 				navigate('/auth/login');
 			}
@@ -56,50 +58,44 @@ export default function Upload() {
 				) {
 					setIsLoading(true);
 
-					const docSnap = await getDocs(dbRef);
-					const datas = docSnap.docs.forEach(item => {
+					const docSnaps = await getDocs(dbRef);
+					const datas = docSnaps.docs.forEach(item => {
 						setData(item.data());
 					});
+					setIsLoading(true);
+					if (userAbout) {
+						console.log(userAbout.email);
 
-					onAuthStateChanged(auth, async user => {
-						if (data.id === user.uid) {
-							message.warning('bu user oldindan mavjud');
-						} else {
-							if (user) {
-								const { email } = user;
+						const docSnap = await getDocs(dbRef);
+						const dataset = docSnap.docs.map(item => item.data());
+						const userIDs = dataset.filter(
+							item => item.email === userAbout.email
+						);
+						const ids = userIDs.map(item => item.id);
 
-								console.log(data.email);
-								const docSnap = await getDocs(dbRef);
-								const datas = docSnap.docs.map(item => item.data());
-								const userIDs = datas.filter(item => item.email === email);
-								const ids = userIDs.map(item => item.id);
+						const q = query(
+							collection(db, 'videos'),
+							where('id', '==', ids.toString())
+						);
 
-								const q = query(
-									collection(db, 'videos'),
-									where('id', '==', ids.toString())
-								);
+						const querySnapshot = await getDocs(q);
+						querySnapshot.forEach(async item => {
+							console.log(item.id);
+							const userRef = doc(db, 'videos', item.id);
+							const datas = await updateDoc(userRef, {
+								date: dateNow,
+								description: state.description,
+								title: state.title,
+								type: state.type,
+								url: url,
+								email: userAbout.email,
+							});
 
-								const querySnapshot = await getDocs(q);
-								querySnapshot.forEach(async item => {
-									const userRef = doc(db, 'videos', item.id);
-									const datas = await updateDoc(userRef, {
-										date: dateNow,
-										description: state.description,
-										title: state.title,
-										type: state.type,
-										url: url,
-										email: email,
-									});
-
-									console.log(datas);
-
-									message.success("sizning videongiz qo'shildi");
-								});
-							} else {
-								navigate('/auth/login');
-							}
-						}
-					});
+							message.success("sizning videongiz qo'shildi");
+						});
+					}
+				} else {
+					navigate('/auth/login');
 				}
 			}
 		} catch (error) {
