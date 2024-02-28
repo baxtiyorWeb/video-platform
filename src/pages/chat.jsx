@@ -144,7 +144,7 @@ export default function Chat({ uiid }) {
 									key={item.id}
 									className={`${
 										item?.email === idsD?.email
-											? 'text-teal-500  border flex justify-end relative items-end flex-col w-full mt-3 mb-3'
+											? 'text-teal-500  bg-[#F0F0F0] border flex justify-end relative items-end flex-col w-full mt-3 mb-3'
 											: 'text-red-500 flex justify-start items-start relative flex-col w-full mt-3 mb-3 border'
 									}`}
 								>
@@ -162,21 +162,25 @@ export default function Chat({ uiid }) {
 													}
 												></div>
 
-												{item.photo === null ? (
-													<div
-														className={`select-none w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle`}
-													>
-														<span>{item.email.split('', 1)}</span>
-													</div>
+												{item?.email !== idsD?.email ? (
+													item.photo === null ? (
+														<div
+															className={`select-none w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle`}
+														>
+															<span>{item.email.split('', 1)}</span>
+														</div>
+													) : (
+														<img
+															className='w-[40px] h-[40px] rounded-full mr-3 '
+															src={
+																item.photo ||
+																'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png'
+															}
+															alt=''
+														/>
+													)
 												) : (
-													<img
-														className='w-[40px] h-[40px] rounded-full mr-3 '
-														src={
-															item.photo ||
-															'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png'
-														}
-														alt=''
-													/>
+													''
 												)}
 											</div>
 											<span key={item.id} className='mt-3 mb-3'>
