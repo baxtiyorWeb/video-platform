@@ -9,14 +9,16 @@ import {
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
+import { collection, getDocs } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { auth } from '../config/firebaseConfig';
+import { auth, db } from '../config/firebaseConfig';
 const { Header, Sider, Content } = Layout;
 
 export default function LayoutComponent({ uiid }) {
 	const [collapsed, setCollapsed] = useState(false);
 	const [userId, setUserId] = useState(0);
+	const [user, setUser] = useState();
 	const {
 		token: { colorBgContainer, borderRadiusLG },
 	} = theme.useToken();
@@ -26,11 +28,24 @@ export default function LayoutComponent({ uiid }) {
 	if (typeof window != 'undefined' && window.document) {
 		document.body.style.overflow = 'hidden';
 	}
+	const getUsers = async email => {
+		const q = collection(db, 'videos');
+		const snapshot = await getDocs(q);
+
+		snapshot.docs.forEach(doc => {
+			let message = [];
+			message.push({ ...doc.data(), id: doc.id });
+
+			const messages = message.filter(item => item.email === email);
+			messages.map(item => setUser(item.id));
+		});
+	};
 	useEffect(() => {
 		onAuthStateChanged(auth, user => {
 			if (user) {
-				const { uid } = user;
-				setUserId(uid);
+				const { uid, email } = user;
+				setUserId(uid, email);
+				getUsers(email);
 			} else {
 				navigate('/auth/login');
 			}
@@ -61,7 +76,7 @@ export default function LayoutComponent({ uiid }) {
 								key: 'Profil',
 								icon: <UserOutlined />,
 								label: 'Profile',
-								onClick: () => navigate('/profile'),
+								onClick: () => navigate(`/profile/${user}`),
 							},
 							{
 								key: 'Live',

@@ -46,7 +46,7 @@ function App() {
 					<Route path='/auth/login' element={<Login userId={userId} />} />
 					<Route path='/auth/register' element={<Register userId={userId} />} />
 				</Route>
-				<Route path='/profile/' element={<Profile userId={userId} />} />
+				<Route path='/profile/:id' element={<Profile userId={userId} />} />
 				<Route path='/chat/:id' element={<Chat userId={userId} />} />
 			</Route>
 		</Routes>
