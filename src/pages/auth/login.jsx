@@ -1,11 +1,12 @@
 import { Button, Input, message } from 'antd';
 import {
 	GoogleAuthProvider,
+	getRedirectResult,
 	signInWithEmailAndPassword,
-	signInWithPopup,
+	signInWithRedirect,
 } from 'firebase/auth';
-import { addDoc, collection } from 'firebase/firestore';
-import React, { useState } from 'react';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { uid } from 'uid';
 import { auth, db } from '../../config/firebaseConfig';
@@ -17,31 +18,43 @@ export default function Login() {
 		email: '',
 		password: '',
 	});
-	const provider = new GoogleAuthProvider();
-	const loginWithGoogle = () => {
-		signInWithPopup(auth, provider)
-			.then(result => {
-				// This gives you a Google Access Token. You can use it to access the Google API.
-				const credential = GoogleAuthProvider.credentialFromResult(result);
-				const token = credential.accessToken;
-				// The signed-in user info.
-				const user = result.user;
-				const date = new Date();
+
+	useEffect(() => {
+		setLoading(true);
+		getRedirectResult(auth)
+			.then(response => {
+				if (!response) return;
+
+				// Your code here
+				console.log(response);
+				const { displayName, email, photoURL } = response.user;
 				const uiid = uid();
-				const dateNow = `${date.getDay()} : ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}`;
-				const docRef = addDoc(collection(db, 'videos'), {
-					date: dateNow,
+				addDoc(collection(db, 'videos'), {
+					date: serverTimestamp(),
 					description: '',
 					id: uiid,
 					title: '',
 					url: '',
 					profileImg: '',
-					photoUrl: user.photoURL,
-					userName: '',
+					photoUrl: photoURL,
+					userName: displayName,
 					password: '',
 					email: email,
 				});
+				message.success('login successfully');
 				navigate('/profile');
+			})
+			.catch(error => {
+				console.error(error);
+			})
+			.finally(() => setLoading(false));
+	}, []);
+
+	const provider = new GoogleAuthProvider();
+	const loginWithGoogle = () => {
+		signInWithRedirect(auth, provider)
+			.then(result => {
+				// This gives you a Google Access Token. You can use it to access the Google API.
 				// IdP data available using getAdditionalUserInfo(result)
 				// ...
 			})
@@ -64,10 +77,6 @@ export default function Login() {
 					const user = userCredential.user;
 					console.log(user.uid);
 					// ...
-
-					message.success('login successfully');
-
-					navigate('/profile');
 				})
 				.catch(error => {
 					const errorMessage = error;
