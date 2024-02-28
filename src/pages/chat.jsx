@@ -11,7 +11,6 @@ import {
 	updateDoc,
 } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
-import { Detector } from 'react-detect-offline';
 import { useNavigate } from 'react-router-dom';
 import { uid } from 'uid';
 import { auth, db } from '../config/firebaseConfig';
@@ -21,21 +20,39 @@ export default function Chat({ uiid }) {
 	const [idsD, setIdsD] = useState();
 	const [onlineUserID, setOnlineUserID] = useState('');
 	const [value, setValue] = useState([]);
-	const [detect, setDetect] = useState();
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 	useEffect(() => {
 		fetchMessages();
 		scrollToBottom();
+		closeWindow();
 	}, []);
+
+	async function closeWindow(userId) {
+		const beforeUnloadHandler = event => {
+			const message = "O'yinni tark etmoqchimisiz?";
+			event.returnValue = message; // Standard
+			return message; // Firefox
+		};
+		window.addEventListener('beforeunload', beforeUnloadHandler);
+
+		const userDocRef = doc(db, 'chat', userId);
+		await updateDoc(userDocRef, {
+			status: false,
+		});
+
+		return () => {
+			window.removeEventListener('beforeunload', beforeUnloadHandler);
+		};
+	}
 
 	function fetchMessages() {
 		const updateOnlineStatus = async (userId, status) => {
 			const userDocRef = doc(db, 'chat', userId);
 			await updateDoc(userDocRef, {
-				status: status,
-				reading: false,
+				status: true,
 			});
+			closeWindow(userId);
 		};
 
 		// Auth durum değişikliklerini izle
@@ -100,6 +117,7 @@ export default function Chat({ uiid }) {
 						id: id,
 						timestamp: timestamp,
 						photo: photoURL,
+						status: true,
 					});
 					scrollToBottom();
 					message.success('sending messages');
@@ -136,18 +154,14 @@ export default function Chat({ uiid }) {
 									>
 										<div className='mr-3  flex flex-col'>
 											<div className='text-blue-800 flex justify-center items-center p-3 '>
-												<Detector
-													polling={true}
-													render={({ online }) => (
-														<div
-															className={
-																online
-																	? 'w-[15px] absolute right-0 bottom-0 h-[15px] rounded-[100%] bg-green-500'
-																	: 'w-[15px] h-[15px] absolute right-0 bottom-0 rounded-[100%] bg-red-500'
-															}
-														></div>
-													)}
-												/>
+												<div
+													className={
+														item.status
+															? 'w-[15px] absolute right-0 bottom-0 h-[15px] rounded-[100%] bg-green-500'
+															: 'w-[15px] h-[15px] absolute right-0 bottom-0 rounded-[100%] bg-red-500'
+													}
+												></div>
+
 												<img
 													className='w-[40px] h-[40px] rounded-full mr-3'
 													src={
