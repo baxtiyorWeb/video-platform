@@ -28,7 +28,7 @@ export default function Details() {
 				<div className='w-[80%] h-full'>
 					<video
 						src={data?.url}
-						className='w-[100%] h-full border object-fill rounded-md'
+						className='w-[100%] h-full border object-contain rounded-md'
 						controls
 					></video>
 
