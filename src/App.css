@@ -1,3 +1,113 @@
 * {
 	scroll-behavior: smooth;
 }
+.input-file-style::-webkit-file-upload-button {
+	width: 100%;
+	height: 100%;
+	appearance: none !important;
+	cursor: pointer !important;
+	background-color: #fff !important;
+	color: transparent;
+	outline: none !important;
+}
+
+.input-file-style {
+	width: 50px !important;
+	height: 50px !important;
+	appearance: none !important;
+	padding: 0 !important;
+	outline: none !important;
+}
+
+.input-file-style::after {
+	content: '';
+	position: absolute;
+	left: 25%;
+	bottom: 50%;
+	width: 20px;
+	height: 1px;
+	background-color: #000;
+}
+.input-file-style::before {
+	content: '';
+	position: absolute;
+	left: 25%;
+	bottom: 50%;
+	width: 20px;
+	transform: rotate(90deg);
+	height: 1px;
+	background-color: #000;
+}
+
+@media only screen and (max-width: 750px) {
+	.block-response {
+		padding: 0 !important;
+		display: flex !important;
+		flex-direction: column;
+		justify-items: flex-end !important;
+		align-items: center;
+	}
+	.response-scroll-user .user-chat-response {
+		margin-bottom: 30px !important;
+		margin-top: 30px !important;
+	}
+	.response-scroll {
+		padding: 5px !important;
+		width: 100% !important;
+	}
+	.ant-layout-sider {
+		height: 100vh;
+		position: absolute !important;
+		bottom: 0;
+		left: 0;
+		z-index: 10;
+	}
+	.chat-details-response {
+		width: 100% !important;
+		border: 1px solid green !important;
+		display: flex !important;
+		justify-content: center !important;
+		align-items: center;
+		position: fixed;
+		bottom: 00px;
+		right: 0px;
+		background: #b7b7b7;
+	}
+	.input-file-style::-webkit-file-upload-button {
+		width: 50%;
+		height: 50%;
+		appearance: none !important;
+		cursor: pointer !important;
+		background-color: #fff !important;
+		color: transparent;
+		outline: none !important;
+		display: none !important;
+	}
+
+	.input-file-style {
+		width: 25px !important;
+		height: 25px !important;
+		display: flex !important;
+		align-items: center !important;
+		appearance: none !important;
+		padding: 0 !important;
+		border: none !important;
+		outline: none !important;
+		display: none !important;
+	}
+}
+
+@media only screen and (max-width: 466px) {
+	.chat-details-response {
+		width: 100% !important;
+		border: 1px solid green !important;
+		display: flex !important;
+		justify-content: space-between !important;
+		align-items: center;
+		position: fixed;
+		bottom: 00px;
+		z-index: 11;
+		right: 0px;
+		background: #b7b7b7;
+	}
+}

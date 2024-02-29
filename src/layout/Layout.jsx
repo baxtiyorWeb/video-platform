@@ -121,7 +121,6 @@ export default function LayoutComponent({ uiid }) {
 							margin: '24px 16px',
 							padding: 24,
 							minHeight: '130vh',
-							border: '1px solid green',
 							background: colorBgContainer,
 							borderRadius: borderRadiusLG,
 							overflowX: 'scroll',
