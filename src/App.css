@@ -39,6 +39,7 @@
 	background-color: #000;
 }
 
+/* responsive  */
 @media only screen and (max-width: 750px) {
 	.block-response {
 		padding: 0 !important;
@@ -96,7 +97,6 @@
 		display: none !important;
 	}
 }
-
 @media only screen and (max-width: 466px) {
 	.chat-details-response {
 		width: 100% !important;
