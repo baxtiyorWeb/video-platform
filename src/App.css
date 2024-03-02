@@ -111,3 +111,33 @@
 		background: #b7b7b7;
 	}
 }
+
+@media only screen and (min-width: 800px) {
+	.chat-details-response {
+		width: 100% !important;
+		display: flex !important;
+		justify-content: center !important;
+		align-items: center;
+	}
+	.chat-details-response input {
+		width: 100%;
+		outline: none;
+		border-radius: 10px;
+		border: 1px solid green;
+	}
+	.response-scroll-user .user-chat-response {
+		margin-bottom: 30px !important ;
+		margin-top: 30px !important;
+	}
+	.response-scroll-user {
+		background: linear-gradient(
+			to right,
+			rgb(32, 32, 246),
+			rgb(97, 55, 236)
+		) !important;
+		font-size: 25px !important;
+		font-family: Arial, Helvetica, sans-serif !important;
+
+		box-shadow: 10px 1px 10px 0px rgb(194, 194, 194);
+	}
+}

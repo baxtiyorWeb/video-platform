@@ -35,7 +35,6 @@ export default function Chat({ uiid }) {
 	const navigate = useNavigate();
 	useEffect(() => {
 		fetchMessages();
-		scrollToBottom();
 		closeWindow();
 	}, []);
 
@@ -152,13 +151,15 @@ export default function Chat({ uiid }) {
 
 	// Function to scroll to the bottom
 	const scrollToBottom = () => {
-		if (messageDivRef.current) {
+		if (messageDivRef.current)
 			messageDivRef.current.scrollTop = messageDivRef.current.scrollHeight;
-		}
+		else alert('ok');
 	};
 
 	const postData = async e => {
 		if (value != '') {
+			setValue('');
+
 			onAuthStateChanged(auth, async user => {
 				if (message !== '') {
 					if (user) {
@@ -179,6 +180,7 @@ export default function Chat({ uiid }) {
 							file: file,
 						});
 						scrollToBottom();
+
 						message.success('sending messages');
 					} else {
 						navigate('/auth/login');
@@ -191,12 +193,12 @@ export default function Chat({ uiid }) {
 	return (
 		<div className='flex justify-between items-center flex-col h-[80vh]'>
 			<div
-				className='w-full overflow-scroll h-[100vh] p-10 block-response  relative'
+				className='w-[1400px] overflow-scroll h-[100vh] p-10 block-response  relative'
 				ref={messageDivRef}
 			>
 				{/* <div className='w-[50px] h-[50px] rounded-full border fixed right-[60px] bottom-[180px] z-10 cursor-pointer'></div> */}
-				<div className='flex flex-col w-full  items-center pl-10'>
-					<div className='flex flex-col w-auto h-full p-5'>
+				<div className='flex flex-col  h-[100vh] items-center pl-10'>
+					<div className='flex flex-col w-full h-full p-5'>
 						{loading ? (
 							<Spin />
 						) : users.length === 0 ? (
@@ -208,8 +210,8 @@ export default function Chat({ uiid }) {
 										key={item.id}
 										className={`${
 											item?.email === idsD?.email
-												? 'text-teal-500 rounded-r-xl mb-3 font-serif text-[20px]  bg-[#F0F0F0] flex justify-end relative items-end flex-col w-full mt-3 p-10 response-scroll response-scroll-user'
-												: ' bg-[#E2FFE9] rounded-l-2xl flex justify-start items-start text-[20px] relative flex-col w-full mt-3 mb-3 p-10 response-scroll'
+												? 'text-teal-500 rounded-[50px] mb-3 font-serif text-[20px] flex justify-end relative items-end flex-col w-full mt-3 p-10 response-scroll response-scroll-user'
+												: ' bg-[#E2FFE9] rounded-2xl flex justify-start items-start text-[20px] relative flex-col w-full mt-3 mb-3 p-10 response-scroll'
 										}`}
 									>
 										<div
@@ -247,7 +249,7 @@ export default function Chat({ uiid }) {
 													)}
 												</div>
 
-												<div className='pl-10 user-chat-response'>
+												<div className='pl-10 user-chat-response '>
 													<span key={item.id} className='mt-3 mb-3'>
 														{item.msg}
 													</span>
@@ -269,23 +271,23 @@ export default function Chat({ uiid }) {
 						)}
 					</div>
 				</div>
-				<div className='flex justify-center items-center w-full chat-details-response'>
-					<input
-						type='text'
-						className='p-3 text-[18px]'
-						placeholder='enter your messages'
-						onChange={e => setValue(e.target.value)}
-						onKeyDown={e => (e.key === 'Enter' ? postData() : '')}
-					/>
-					<Input
-						type='file'
-						className='w-[180px] input-file-style'
-						onChange={e => setFile(e.target.files[0])}
-					/>
-					<Button onClick={postData} title='submit' className='h-[50px]'>
-						submit
-					</Button>
-				</div>
+			</div>
+			<div className='flex justify-center items-center w-full chat-details-response'>
+				<input
+					type='text'
+					className='p-3 text-[18px]'
+					placeholder='enter your messages'
+					onChange={e => setValue(e.target.value)}
+					onKeyDown={e => (e.key === 'Enter' ? postData() : '')}
+				/>
+				<Input
+					type='file'
+					className='w-[180px] input-file-style'
+					onChange={e => setFile(e.target.files[0])}
+				/>
+				<Button onClick={postData} title='submit' className='h-[50px]'>
+					submit
+				</Button>
 			</div>
 		</div>
 	);
