@@ -20,7 +20,14 @@ export default function Cards() {
 			});
 			setData(docs);
 			const res = data.map(item => (item.url.innerHTML === '' ? true : false));
+			const res1 = data.map(item => item.url.map(item => item));
+			console.log(res1);
 			setIds(res);
+
+			// for (let i = 0; i < .url.length; i++) {
+			// 	const element = item.url[i];
+			// 	console.log(element);
+			// }
 			setLoading(false);
 		})();
 	}, []);
@@ -39,52 +46,42 @@ export default function Cards() {
 							</div>
 						) : (
 							data.map((item, index) =>
-								item.title.length === 0 ? (
-									''
-								) : (
-									<Col span={8} key={item.id}>
+								item.url.map((items, index) => (
+									<Col span={8} key={index}>
 										<Card
-											title={item.title ? item.title : 'no title'}
+											key={index}
+											title={items.title ? items.title : 'no title'}
 											bordered={true}
 											loading={loading ? true : false}
 											className='m-10 h-[510px]'
 										>
-											{item.type === '' ? (
-												''
-											) : item.type === 'video' ? (
+											{items.type === 'video' && (
 												<video
-													src={`${item.url}`}
+													src={`${items.typeUrl}`}
 													className='w-full h-[250px] border object-fill cursor-pointer'
 													onClick={() => navigate(`/watch/${item.id}`)}
 												></video>
-											) : (
-												''
 											)}
-
-											{item.type === '' ? (
-												''
-											) : item.type === 'rasm' ? (
+											{items.type === 'rasm' && (
 												<img
-													src={`${item.url}`}
+													src={items.typeUrl}
+													alt=''
 													className='w-full h-[250px] border object-fill '
-												></img>
-											) : (
-												''
+												/>
 											)}
-
 											<div>
 												<span className='text text-[15px] text-teal-500 text-justify'>
-													email: {item.email}
+													email: {items.email}
 												</span>
 												<p className='text text-xl text-justify'>
-													{item.description}
+													{items.description}
 												</p>
-												<span>turi: {item.type}</span>
+												<span>turi: {items.type}</span>
 												<br />
 											</div>
 										</Card>
 									</Col>
-								)
+								))
 							)
 						)}
 					</Row>

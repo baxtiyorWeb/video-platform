@@ -24,7 +24,7 @@ export default function Register({ userId }) {
 			descripton: '',
 			id: uid,
 			title: '',
-			url: '',
+			url: [],
 			profileImg: '',
 			photoUrl: `rgb(${R} ${G} ${B})`,
 			userName: '',

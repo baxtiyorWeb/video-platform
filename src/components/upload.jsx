@@ -1,6 +1,7 @@
 import { Button, Input, Progress, Select, message } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
+	arrayUnion,
 	collection,
 	doc,
 	getDocs,
@@ -79,15 +80,25 @@ export default function Upload() {
 						);
 
 						const querySnapshot = await getDocs(q);
+						var bugun = new Date();
+
+						// Sana ma'lumotlarini ajratish
+						var yil = bugun.getFullYear();
+						var oy = bugun.getMonth() + 1; // Oylar 0 dan 11 gacha sonlashadi, shuning uchun +1 qo'shildi
+						var kun = bugun.getDate();
 						querySnapshot.forEach(async item => {
 							console.log(item.id);
 							const userRef = doc(db, 'videos', item.id);
 							const datas = await updateDoc(userRef, {
 								date: dateNow,
-								description: state.description,
-								title: state.title,
-								type: state.type,
-								url: url,
+								url: arrayUnion({
+									type: state.type,
+									typeUrl: url,
+									description: state.description,
+									title: state.title,
+									date: `${yil + '-' + oy + '-' + kun}`,
+									email: userAbout.email,
+								}),
 								email: userAbout.email,
 							});
 
