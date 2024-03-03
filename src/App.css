@@ -130,10 +130,23 @@
 		margin-top: 30px !important;
 	}
 	.response-scroll-user {
+		width: auto !important;
 		background: linear-gradient(
 			to right,
-			rgb(32, 32, 246),
-			rgb(97, 55, 236)
+			rgb(145, 184, 255),
+			rgb(244, 244, 255)
+		) !important;
+		font-size: 25px !important;
+		font-family: Arial, Helvetica, sans-serif !important;
+
+		box-shadow: 10px 1px 10px 0px rgb(194, 194, 194);
+	}
+	.response-scroll {
+		width: auto !important;
+		background: linear-gradient(
+			to right,
+			rgb(145, 184, 255),
+			rgb(244, 244, 255)
 		) !important;
 		font-size: 25px !important;
 		font-family: Arial, Helvetica, sans-serif !important;

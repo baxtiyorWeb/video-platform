@@ -1,9 +1,9 @@
-import React from 'react'
-
 export default function Sidebar() {
-  return (
-    <div>
-      
+  return <div>
+    <div className="html darslar">
+      <div className="html darslari">h1</div>
+
+
     </div>
-  )
+  </div>;
 }

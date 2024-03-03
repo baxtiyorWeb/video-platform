@@ -1,6 +1,5 @@
-import { Button, Empty, Input, Spin, message } from 'antd';
+import { Button, Empty, Spin, Watermark, message } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
-import { ref, update } from 'firebase/database';
 import {
 	addDoc,
 	collection,
@@ -8,24 +7,16 @@ import {
 	onSnapshot,
 	orderBy,
 	query,
-	serverTimestamp,
 	updateDoc,
 } from 'firebase/firestore';
-import {
-	getDownloadURL,
-	uploadBytes,
-	uploadBytesResumable,
-} from 'firebase/storage';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { uid } from 'uid';
-import { auth, db, storage } from '../config/firebaseConfig';
+import { auth, db } from '../config/firebaseConfig';
 
-export default function Chat({ uiid }) {
+export default function Chat() {
 	const [users, setUsers] = useState([]);
 	const { id } = useParams();
-	const [progress, setProgress] = useState('');
-	const [fileUrl, setFileUrl] = useState('');
 	const [idsD, setIdsD] = useState();
 	const [onlineUserID, setOnlineUserID] = useState('');
 	const [value, setValue] = useState([]);
@@ -35,75 +26,26 @@ export default function Chat({ uiid }) {
 	const navigate = useNavigate();
 	useEffect(() => {
 		fetchMessages();
-		closeWindow();
+		// closeWindow();
 	}, []);
 
-	async function fileUplaod() {
-		const storageRef = ref(storage, `chat-files/${file.name}`);
-		const updloadTask = uploadBytesResumable(storageRef, file);
+	// async function closeWindow(userId) {
+	// 	const beforeUnloadHandler = event => {
+	// 		const message = "O'yinni tark etmoqchimisiz?";
+	// 		event.returnValue = message; // Standard
+	// 		return message; // Firefox
+	// 	};
+	// 	window.addEventListener('beforeunload', beforeUnloadHandler);
 
-		try {
-			if (file) {
-				setLoading(true);
-				uploadBytes(storageRef, file).then(snaphshot => {
-					console.log(snaphshot.metadata.name);
-				});
+	// 	const userDocRef = doc(db, 'chat', userId);
+	// 	await updateDoc(userDocRef, {
+	// 		status: false,
+	// 	});
 
-				updloadTask.on(
-					'state_changed',
-					snaphshot => {
-						const progress =
-							(snaphshot.bytesTransferred / snaphshot.totalBytes) * 100;
-						setProgress(Math.floor(Math.ceil(progress)));
-
-						switch (snaphshot.state) {
-							case 'paused':
-								console.log('upload paused');
-								break;
-							case 'running':
-								console.log('upload is running');
-								break;
-						}
-					},
-					error => {
-						console.log(error);
-					}
-				),
-					() => {
-						getDownloadURL(updloadTask.snapshot.ref).then(async downloadUrl => {
-							setFileUrl(downloadUrl);
-							const chatRef = doc(db, 'chat', id);
-							await update(chatRef, {
-								file: downloadUrl,
-							});
-							message.success('fayl yuklandi ');
-						});
-					};
-			}
-		} catch (error) {
-			console.log('error', error);
-		} finally {
-			setLoading(false);
-		}
-	}
-
-	async function closeWindow(userId) {
-		const beforeUnloadHandler = event => {
-			const message = "O'yinni tark etmoqchimisiz?";
-			event.returnValue = message; // Standard
-			return message; // Firefox
-		};
-		window.addEventListener('beforeunload', beforeUnloadHandler);
-
-		const userDocRef = doc(db, 'chat', userId);
-		await updateDoc(userDocRef, {
-			status: false,
-		});
-
-		return () => {
-			window.removeEventListener('beforeunload', beforeUnloadHandler);
-		};
-	}
+	// 	return () => {
+	// 		window.removeEventListener('beforeunload', beforeUnloadHandler);
+	// 	};
+	// }
 
 	function fetchMessages() {
 		const updateOnlineStatus = async (userId, status) => {
@@ -114,14 +56,11 @@ export default function Chat({ uiid }) {
 			closeWindow(userId);
 		};
 
-		// Auth durum değişikliklerini izle
 		onAuthStateChanged(auth, async user => {
 			setLoading(true);
 
 			if (user) {
 				setIdsD(user);
-
-				// Kullanıcı giriş yaptığında "online" olarak işaretle
 
 				const q = query(collection(db, 'chat'), orderBy('timestamp'));
 				const unsubscribe = onSnapshot(q, querySnapshot => {
@@ -167,14 +106,32 @@ export default function Chat({ uiid }) {
 						setIdsD(user);
 
 						const id = uid();
-						const timestamp = serverTimestamp();
+						const date = new Date();
+						const dayNames = [
+							'Yakshanba',
+							'Dushanba',
+							'Seshanba',
+							'Chorshanba',
+							'Payshanba',
+							'Juma',
+							'Shanba',
+						];
+						const dayIndex = date.getDay();
+						const dayName = dayNames[dayIndex];
+						const getHours = date.getHours();
+						const getMinutes = date.getMinutes();
+						const getSeconds = date.getSeconds();
+						const timeFull = `${dayName} kuni
+							-
+						vaqt: ${getHours} - ${getMinutes} - ${getSeconds}`;
 						const usersChatRef = collection(db, 'chat');
+
 						const time = await addDoc(usersChatRef, {
 							msg: value,
 							email: email,
 							name: displayName,
 							id: id,
-							timestamp: timestamp,
+							timestamp: timeFull,
 							photo: photoURL,
 							status: true,
 							file: file,
@@ -191,105 +148,112 @@ export default function Chat({ uiid }) {
 	};
 
 	return (
-		<div className='flex justify-between items-center flex-col h-[80vh]'>
-			<div
-				className='w-[1400px] overflow-scroll h-[100vh] p-10 block-response  relative'
-				ref={messageDivRef}
-			>
-				{/* <div className='w-[50px] h-[50px] rounded-full border fixed right-[60px] bottom-[180px] z-10 cursor-pointer'></div> */}
-				<div className='flex flex-col  h-[100vh] items-center pl-10'>
-					<div className='flex flex-col w-full h-full p-5'>
-						{loading ? (
-							<Spin />
-						) : users.length === 0 ? (
-							<Empty description={'chat mavjud emas'} />
-						) : (
-							users?.map(item => (
-								<>
-									<div
-										key={item.id}
-										className={`${
-											item?.email === idsD?.email
-												? 'text-teal-500 rounded-[50px] mb-3 font-serif text-[20px] flex justify-end relative items-end flex-col w-full mt-3 p-10 response-scroll response-scroll-user'
-												: ' bg-[#E2FFE9] rounded-2xl flex justify-start items-start text-[20px] relative flex-col w-full mt-3 mb-3 p-10 response-scroll'
-										}`}
-									>
-										<div
-											className='flex justify-center items-center'
-											key={item.id}
-										>
-											<div className='mr-3  flex flex-col'>
-												<div className='text-blue-800 flex justify-start items-center p-3 '>
-													<div
-														className={
-															item.status
-																? 'w-[15px] absolute right-0 bottom-0 h-[15px] rounded-[100%] bg-green-500'
-																: 'w-[15px] h-[15px] absolute right-0 bottom-0 rounded-[100%] bg-red-500'
-														}
-													></div>
-													{item?.email !== idsD?.email ? (
-														item.photo === null ? (
+		<Watermark content={'messages'}>
+			<div className='flex justify-between items-center flex-col h-[80vh]'>
+				<div
+					className='w-[1400px] overflow-scroll h-[100vh] p-10 block-response  relative'
+					ref={messageDivRef}
+				>
+					{/* <div className='w-[50px] h-[50px] rounded-full border fixed right-[60px] bottom-[180px] z-10 cursor-pointer'></div> */}
+					<div className='flex flex-col  h-[100vh] items-center pl-10'>
+						<div className='flex flex-col w-full items-end h-full p-5'>
+							{loading ? (
+								<Spin />
+							) : users.length === 0 ? (
+								<Empty description={'chat mavjud emas'} />
+							) : (
+								users?.map(item => (
+									<div key={item.id} className='w-full'>
+										<div className='relative '>
+											<div
+												className={`${
+													item?.email === idsD?.email
+														? 'text-teal-500 rounded-[25px] mb-3 font-serif text-[16px] flex justify-end  items-end flex-col w-auto  mt-3 p-3  response-scroll response-scroll-user'
+														: ' bg-[#E2FFE9] text-sky-700  rounded-[25px] mb-3 font-serif text-[16px] flex justify-start  items-start flex-col p-3  mt-3  response-scroll '
+												}`}
+											>
+												<div
+													className='flex justify-center items-center'
+													key={item.id}
+												>
+													<div className='mr-3  flex flex-col'>
+														<div className='text-blue-800 flex justify-start items-center p-3 '>
 															<div
-																className={`select-none w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle `}
-															>
-																<span>{item.email.split('', 1)}</span>
-															</div>
-														) : (
-															<img
-																className='w-[40px] h-[40px] rounded-full mr-3 '
-																src={
-																	item.photo ||
-																	'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png'
+																className={
+																	item.status
+																		? 'w-[15px] absolute right-0 bottom-0 h-[15px] rounded-[100%] bg-green-500'
+																		: 'w-[15px] h-[15px] absolute right-0 bottom-0 rounded-[100%] bg-red-500'
 																}
-																alt=''
-															/>
-														)
-													) : (
-														''
-													)}
+															></div>
+															{item?.email !== idsD?.email ? (
+																item.photo === null ? (
+																	<div
+																		key={item.id}
+																		className={`select-none w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle `}
+																	>
+																		<span>{item.email.split('', 1)}</span>
+																	</div>
+																) : (
+																	<img
+																		className='w-[40px] h-[40px] rounded-full mr-3 '
+																		src={
+																			item.photo ||
+																			'https://w7.pngwing.com/pngs/178/595/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png'
+																		}
+																		alt=''
+																	/>
+																)
+															) : (
+																''
+															)}
+														</div>
+
+														<div
+															className={
+																item?.email === idsD?.email
+																	? 'pl-5 user-chat-response p-3 rounded-2xl bg-slate-600 '
+																	: 'pl-5 user-chat-response p-3 rounded-2xl bg-slate-100 '
+															}
+														>
+															<span key={item.id} className='mt-3 mb-3'>
+																{item.msg}
+															</span>
+														</div>
+													</div>
 												</div>
 
-												<div className='pl-10 user-chat-response '>
-													<span key={item.id} className='mt-3 mb-3'>
-														{item.msg}
-													</span>
+												<div className='text-center text-[15px] absolute right-[100px] top-5'>
+													{item?.timestamp}
+													<hr className='border border-gray-500' />
 												</div>
 											</div>
 										</div>
-
-										<div className='text-center text-[18px] absolute right-5 top-5'>
-											{item?.timestamp?.toDate().toUTCString().slice(17, 22)}
+										<div className='text-center text-[18px] w-full text-green-500'>
+											<hr />
+											{item?.timestamp}
+											<hr />
 										</div>
 									</div>
-									<div className='text-center text-[18px] w-full text-green-500'>
-										<hr />
-										{item?.timestamp?.toDate().toUTCString().slice('', 26)}
-										<hr />
-									</div>
-								</>
-							))
-						)}
+								))
+							)}
+						</div>
 					</div>
 				</div>
+				<div className='flex justify-center items-center w-full chat-details-response'>
+					<input
+						type='text'
+						className='p-3 text-[18px]'
+						placeholder='enter your messages'
+						onChange={e => setValue(e.target.value)}
+						onKeyDown={e => (e.key === 'Enter' ? postData() : '')}
+					/>
+
+					<Button onClick={postData} title='submit' className='h-[50px]'>
+						submit
+					</Button>
+				</div>
 			</div>
-			<div className='flex justify-center items-center w-full chat-details-response'>
-				<input
-					type='text'
-					className='p-3 text-[18px]'
-					placeholder='enter your messages'
-					onChange={e => setValue(e.target.value)}
-					onKeyDown={e => (e.key === 'Enter' ? postData() : '')}
-				/>
-				<Input
-					type='file'
-					className='w-[180px] input-file-style'
-					onChange={e => setFile(e.target.files[0])}
-				/>
-				<Button onClick={postData} title='submit' className='h-[50px]'>
-					submit
-				</Button>
-			</div>
-		</div>
+		</Watermark>
 	);
 }
 // if (user) {

@@ -62,6 +62,7 @@ export default function LayoutComponent({ uiid }) {
 					className='absolute top-0 right-0 h-auto '
 				>
 					<div className='demo-logo-vertical' />
+
 					<Menu
 						theme='dark'
 						defaultSelectedKeys={['1']}
