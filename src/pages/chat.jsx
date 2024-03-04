@@ -4,6 +4,7 @@ import {
 	addDoc,
 	collection,
 	doc,
+	getDocs,
 	onSnapshot,
 	orderBy,
 	query,
@@ -97,8 +98,6 @@ export default function Chat() {
 
 	const postData = async e => {
 		if (value != '') {
-			setValue('');
-
 			onAuthStateChanged(auth, async user => {
 				if (message !== '') {
 					if (user) {
@@ -124,21 +123,28 @@ export default function Chat() {
 						const timeFull = `${dayName} kuni
 							-
 						vaqt: ${getHours} - ${getMinutes} - ${getSeconds}`;
-						const usersChatRef = collection(db, 'chat');
+						const q = collection(db, 'videos');
+						const snapshot = await getDocs(q);
 
-						const time = await addDoc(usersChatRef, {
-							msg: value,
-							email: email,
-							name: displayName,
-							id: id,
-							timestamp: timeFull,
-							photo: photoURL,
-							status: true,
-							file: file,
+						snapshot.docs.forEach(async doc => {
+							const usersChatRef = collection(db, 'chat');
+							const userArr = [];
+							const user = [{ ...doc.data(), id: doc.id }];
+							userArr.push(user);
+							const photoUrl = user.map(items => items.photoUrl);
+							const time = await addDoc(usersChatRef, {
+								msg: value,
+								email: email,
+								name: displayName,
+								id: id,
+								timestamp: timeFull,
+								photo: photoURL === null ? photoUrl : photoURL,
+								status: true,
+								file: file,
+							});
 						});
-						scrollToBottom();
-
 						message.success('sending messages');
+						scrollToBottom();
 					} else {
 						navigate('/auth/login');
 					}
