@@ -22,6 +22,7 @@ export default function Chat() {
 	const [onlineUserID, setOnlineUserID] = useState('');
 	const [value, setValue] = useState([]);
 	const [file, setFile] = useState('');
+	const [userSnapshot, setUserSnapshot] = useState();
 	const [loading, setLoading] = useState(false);
 
 	const navigate = useNavigate();
@@ -127,21 +128,19 @@ export default function Chat() {
 						const snapshot = await getDocs(q);
 
 						snapshot.docs.forEach(async doc => {
-							const usersChatRef = collection(db, 'chat');
-							const userArr = [];
 							const user = [{ ...doc.data(), id: doc.id }];
-							userArr.push(user);
-							const photoUrl = user.map(items => items.photoUrl);
-							const time = await addDoc(usersChatRef, {
-								msg: value,
-								email: email,
-								name: displayName,
-								id: id,
-								timestamp: timeFull,
-								photo: photoURL === null ? photoUrl : photoURL,
-								status: true,
-								file: file,
-							});
+							user.map(item => setUserSnapshot(item.photoUrl));
+						});
+						const usersChatRef = collection(db, 'chat');
+						const time = await addDoc(usersChatRef, {
+							msg: value,
+							email: email,
+							name: displayName,
+							id: id,
+							timestamp: timeFull,
+							photo: photoURL === null ? userSnapshot : photoURL,
+							status: true,
+							file: file,
 						});
 						message.success('sending messages');
 						scrollToBottom();
