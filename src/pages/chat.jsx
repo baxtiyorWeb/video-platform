@@ -137,6 +137,7 @@ export default function Chat() {
 							email: email,
 							name: displayName,
 							id: id,
+							photoUrl: '',
 							timestamp: timeFull,
 							photo: photoURL === null ? userSnapshot : photoURL,
 							status: true,
@@ -194,7 +195,7 @@ export default function Chat() {
 																item.photo === null ? (
 																	<div
 																		key={item.id}
-																		className={`select-none w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center border bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle `}
+																		className={`select-none w-[40px] h-[40px] rounded-full flex justify-center pb-1 items-center  bg-gradient-to-r from-cyan-500 to-blue-500 text-[25px] leading-[21px] text-white align-middle `}
 																	>
 																		<span>{item.email.split('', 1)}</span>
 																	</div>
@@ -229,14 +230,11 @@ export default function Chat() {
 
 												<div className='text-center text-[15px] absolute right-[100px] top-5'>
 													{item?.timestamp}
-													<hr className='border border-gray-500' />
 												</div>
 											</div>
 										</div>
 										<div className='text-center text-[18px] w-full text-green-500'>
-											<hr />
 											{item?.timestamp}
-											<hr />
 										</div>
 									</div>
 								))

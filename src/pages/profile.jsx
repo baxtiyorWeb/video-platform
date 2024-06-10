@@ -64,7 +64,7 @@ export default function Profile() {
 						getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
 							setUrl(downloadURL);
 							console.log('File available at', downloadURL);
-							const userRef = doc(db, 'videos', id);
+							const userRef = doc(db, 'chat', id);
 							await updateDoc(userRef, {
 								photoUrl: downloadURL,
 							});
